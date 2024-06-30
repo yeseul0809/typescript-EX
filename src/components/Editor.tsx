@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import { TodoDispatchContext, useTodoDispatch } from "../App";
 
-interface Props {
-  handleClickAdd: (text: string) => void;
-}
+interface Props {}
 
 export default function Editor(props: Props) {
+  const dispatch = useTodoDispatch();
+
   const [text, setText] = useState<string>("");
 
   const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -12,7 +13,7 @@ export default function Editor(props: Props) {
   };
 
   const handleClickButton = () => {
-    props.handleClickAdd(text);
+    dispatch.handleClickAdd(text);
     setText("");
   };
   return (

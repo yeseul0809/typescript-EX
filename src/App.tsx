@@ -1,4 +1,10 @@
-import React, { useEffect, useReducer, useRef, useState } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 import "./App.css";
 import Editor from "./components/Editor";
 import { Todo } from "./types";
@@ -24,7 +30,23 @@ function reducer(state: Todo[], action: Action) {
     }
   }
 }
+
+export const TodoStateContext = React.createContext<Todo[] | null>(null);
+export const TodoDispatchContext = React.createContext<{
+  handleClickAdd: (text: string) => void;
+  handleClickDelete: (id: number) => void;
+} | null>(null);
+
+export function useTodoDispatch() {
+  const dispatch = useContext(TodoDispatchContext);
+  if (!dispatch) throw new Error("TodoDispatchContext에 문제가 있다.");
+  return dispatch;
+}
+
 function App() {
+  // useState => useReducer 로 업그레이드 하기
+  // 타입스크립트에서 useReducer 이용할때 액션 객체의 타입을 서로소 유니온 타입으로 정의를 한다.
+  // -> 일반적으로 dispatch 를 사용할때 하는 실수를 최대한 방지할 수 있다. (ex. type 부분을 대소문자, 오타.. )
   const [todos, dispatch] = useReducer(reducer, []);
 
   const idRef = useRef(0);
@@ -46,19 +68,22 @@ function App() {
   useEffect(() => {
     console.log(todos);
   }, [todos]);
+
   return (
     <div className="App">
       <h1>TodoList</h1>
-      <Editor handleClickAdd={handleClickAdd} />
-      <div>
-        {todos.map((todo) => (
-          <TodoItem
-            key={todo.id}
-            {...todo}
-            handleClickDelete={handleClickDelete}
-          />
-        ))}
-      </div>
+      <TodoStateContext.Provider value={todos}>
+        <TodoDispatchContext.Provider
+          value={{ handleClickAdd, handleClickDelete }}
+        >
+          <Editor />
+          <div>
+            {todos.map((todo) => (
+              <TodoItem key={todo.id} {...todo} />
+            ))}
+          </div>
+        </TodoDispatchContext.Provider>
+      </TodoStateContext.Provider>
     </div>
   );
 }

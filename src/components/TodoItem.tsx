@@ -1,13 +1,13 @@
 import React from "react";
 import { Todo } from "../types";
+import { useTodoDispatch } from "../App";
 
-interface Props extends Todo {
-  handleClickDelete: (id: number) => void;
-}
+interface Props extends Todo {}
 
 export default function TodoItem(props: Props) {
+  const dispatch = useTodoDispatch();
   const handleClickButton = () => {
-    props.handleClickDelete(props.id);
+    dispatch.handleClickDelete(props.id);
   };
   return (
     <div>
